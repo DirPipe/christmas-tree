@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[PipeDir Designs] Arbol de Navidad!</title>
+    <style>
+        body {
+            background-color: #141414;
+            color: white;
+            font-family: monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        pre {
+            font-size: 10px; /* Reduce the font size for higher resolution */
+            line-height: 1.2;
+        }
+        .tree-container {
+            text-align: center;
+            position: relative;
+        }
+        .greeting {
+            font-size: 24px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .color {
+            animation: colorChange 1s infinite;
+        }
+        @keyframes colorChange {
+            0% { color: red; }
+            25% { color: green; }
+            50% { color: yellow; }
+            75% { color: blue; }
+            100% { color: magenta; }
+        }
+        .snow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .snowflake {
+            position: absolute;
+            font-size: 10px;
+            color: white;
+            opacity: 0.8;
+            animation: fall linear infinite, colorChange 5s infinite;
+        }
+        @keyframes fall {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100vh); }
+        }
+        @keyframes starTwinkle {
+            0%, 50%, 100% { color: gold; text-shadow: 0 0 10px gold, 0 0 20px gold, 0 0 30px gold, 0 0 40px gold; }
+            25% { color: #fdd835; text-shadow: 0 0 5px #fdd835, 0 0 10px #fdd835; }
+            75% { color: #fbc02d; text-shadow: 0 0 5px #fbc02d, 0 0 10px #fbc02d; }
+        }
+        .star {
+            color: gold;
+            font-size: 14px; /* Hacer la estrella un poco más grande */
+            animation: starTwinkle 10s infinite; /* Frecuencia de alumbrado más lenta */
+        }
+        .ribbon {
+            color: red;
+        }
+        .button-container {
+            margin-top: 20px;
+        }
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #c0392b; /* Color navideño */
+            color: #fff;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        button:hover {
+            background-color: #e74c3c;
+            color: #fff;
+        }
+        .cursor-block {
+            position: fixed;
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255, 255, 255, 0.5);
+            pointer-events: none;
+            z-index: 1;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="cursor-block" id="cursor-block"></div>
+    <div class="tree-container">
+        <div class="snow" id="snow"></div>
+        <pre id="tree"></pre>
+        <div class="greeting" id="greeting">
+            <span class="color">F</span>
+            <span class="color">e</span>
+            <span class="color">l</span>
+            <span class="color">i</span>
+            <span class="color">z</span>
+            <span class="color"> </span>
+            <span class="color">N</span>
+            <span class="color">a</span>
+            <span class="color">v</span>
+            <span class="color">i</span>
+            <span class="color">d</span>
+            <span class="color">a</span>
+            <span class="color">d</span>
+            <span> 🎅</span>
+        </div>
+        <div class="button-container">
+            <button onclick="changePattern()">Cambiar Patrón de Luces</button>
+        </div>
+    </div>
+    <script>
+        const tree = [
+            "                 *                 ",
+            "                ***                ",
+            "               *****               ",
+            "              *******              ",
+            "             *********             ",
+            "            ***********            ",
+            "           *************           ",
+            "          ***************          ",
+            "         *****************         ",
+            "        *******************        ",
+            "       *********************       ",
+            "      ***********************      ",
+            "     *************************     ",
+            "    ***************************    ",
+            "   *****************************   ",
+            "  *******************************  ",
+            " ********************************* ",
+            "***********************************",
+            "               |||                 ",
+            "               |||                 "
+        ];
+
+        const lightColors = ["yellow", "blue", "cyan"];
+        const ballColors = ["red", "green", "magenta"];
+        const snowflakes = ["*", "❄", "✳", "❅"];
+
+        function printTree(colorIndex) {
+            return tree.map((line, index) => {
+                return line.split('').map(char => {
+                    if (char === "*") {
+                        // Estrella en la punta del árbol
+                        if (index === 0) return `<span class="star">★</span>`;
+                        // Listón rojo debajo de la estrella
+                        if (index === 1) return `<span class="ribbon">-</span>`;
+                        // Aleatoriamente asignar bolas de colores y luces
+                        const random = Math.random();
+                        if (random > 0.7) {
+                            return `<span style="color: ${ballColors[colorIndex % ballColors.length]}">o</span>`;
+                        } else if (random > 0.4) {
+                            return `<span style="color: ${lightColors[(colorIndex + 1) % lightColors.length]}">*</span>`;
+                        } else {
+                            return `<span style="color: green">${char}</span>`;
+                        }
+                    } else if (char === "|") {
+                        return `<span style="color: brown">${char}</span>`;
+                    } else {
+                        return char;
+                    }
+                }).join('');
+            }).join('<br>');
+        }
+
+        function changePattern() {
+            colorIndex = Math.floor(Math.random() * lightColors.length);
+            document.getElementById('tree').innerHTML = printTree(colorIndex);
+        }
+
+        function createSnowflakes() {
+            const snowContainer = document.getElementById('snow');
+            const snowflakeCount = 100; // Número de copos de nieve por aparición
+
+            for (let i = 0; i < snowflakeCount; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.style.left = Math.random() * 100 + 'vw';
+                snowflake.style.animationDuration = Math.random() * 20 + 40 + 's'; // Duración mucho más larga
+                snowflake.style.opacity = Math.random();
+                snowflake.style.transform = `scale(${Math.random()})`;
+                snowflake.innerHTML = snowflakes[Math.floor(Math.random() * snowflakes.length)];
+                snowContainer.appendChild(snowflake);
+            }
+        }
+
+        function moveSnowflakes(e) {
+            const cursorBlock = document.getElementById('cursor-block');
+            cursorBlock.style.left = `${e.clientX - 25}px`;
+            cursorBlock.style.top = `${e.clientY - 25}px`;
+
+            const snowflakes = document.querySelectorAll('.snowflake');
+            snowflakes.forEach(snowflake => {
+                const rect = snowflake.getBoundingClientRect();
+                const blockRect = cursorBlock.getBoundingClientRect();
+                if (rect.left < blockRect.right && rect.right > blockRect.left && rect.top < blockRect.bottom && rect.bottom > blockRect.top) {
+                    snowflake.style.transition = 'transform 0.05s'; // Hacer colisión más rápida
+                    snowflake.style.animationPlayState = 'paused'; // Pausar animación al colisionar
+                } else {
+                    snowflake.style.transition = 'none';
+                    snowflake.style.animationPlayState = 'running'; // Continuar animación cuando no colisiona
+                }
+            });
+        }
+
+        let colorIndex = 0;
+        setInterval(() => {
+            document.getElementById('tree').innerHTML = printTree(colorIndex);
+            colorIndex++;
+        }, 500);
+
+        // Crear nieve inicial
+        createSnowflakes();
+
+        // Crear nieve adicional cada 10 segundos sin eliminar la anterior
+        setInterval(() => {
+            createSnowflakes();
+        }, 10000); // La frecuencia de creación de nieve es cada 10 segundos
+
+        // Mover nieve con el cursor
+        window.addEventListener('mousemove', moveSnowflakes);
+
+    </script>
+</body>
+</html>
